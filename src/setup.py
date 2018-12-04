@@ -833,6 +833,10 @@ def main():
         '-D', '--debug_setup', default=False,
         action='store_true', help='Provides verbose logging during setup process'
     )
+    parser.add_argument(
+        '-i', '--install_only', default=False,
+        action='store_true', help='Installs plugin without launching collectd'
+    )
     args = parser.parse_args()
 
     if args.proxy_port is None and args.proxy_name or args.proxy_port and args.proxy_name is None:
@@ -864,6 +868,7 @@ def main():
     dimension_value = args.dimension_value
     debug_setup = args.debug_setup
     debug = args.debug
+    install_only = args.install_only
 
     def install_plugin():
         try:
@@ -875,7 +880,8 @@ def main():
             _run_command(UNTAR_PLUGIN_CMD, exit_on_failure=True)
             _run_command(COPY_PLUGIN_CMD, shell=True, exit_on_failure=True)
             supply_config()
-            restart_collectd()
+            if not install_only:
+                restart_collectd()
         finally:
             remove_temp_dir()
 
