@@ -7,7 +7,7 @@ The plugin offers additional functionality for EC2 customers such as automatic d
 *  For example: for redhat distribution, run "yum install -y collectd-python".
 
 ## Installation
- * Download [installation script](https://github.com/awslabs/collectd-cloudwatch/blob/master/src/setup.py), place it on the instance and execute it:
+ * Download [installation script](https://github.com/starburstdata/collectd-cloudwatch/blob/epic/presto/1/src/setup.py), place it on the instance and execute it:
 ```
 chmod u+x setup.py
 sudo ./setup.py
