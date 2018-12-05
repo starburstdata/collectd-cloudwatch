@@ -34,7 +34,8 @@ class ConfigReader(object):
     PASS_THROUGH_CONFIG_KEY = "whitelist_pass_through"
     PUSH_ASG_KEY = "push_asg"
     PUSH_CONSTANT_KEY = "push_constant"
-    CONSTANT_DIMENSION_KEY = "constant_dimension_value"
+    CONSTANT_DIMENSION_NAME_KEY = "constant_dimension_name"
+    CONSTANT_DIMENSION_VALUE_KEY = "constant_dimension_value"
     PROXY_SERVER_NAME_KEY = "proxy_server_name"
     PROXY_SERVER_PORT_KEY = "proxy_server_port"
     ENABLE_HIGH_DEFINITION_METRICS = "enable_high_resolution_metrics"
@@ -53,6 +54,7 @@ class ConfigReader(object):
         self.debug = self._DEBUG_DEFAULT_VALUE
         self.push_asg = self._PUSH_ASG_DEFAULT_VALUE
         self.push_constant = self._PUSH_CONSTANT_DEFAULT_VALUE
+        self.constant_dimension_name = ''
         self.constant_dimension_value = ''
         self.presto_node_role = ''
         self.presto_stack_name = ''
@@ -83,7 +85,8 @@ class ConfigReader(object):
         self.debug = self.reader_utils.try_get_boolean(self.DEBUG_CONFIG_KEY, self._DEBUG_DEFAULT_VALUE)
         self.push_asg = self.reader_utils.try_get_boolean(self.PUSH_ASG_KEY, self._PUSH_ASG_DEFAULT_VALUE)
         self.push_constant = self.reader_utils.try_get_boolean(self.PUSH_CONSTANT_KEY, self._PUSH_CONSTANT_DEFAULT_VALUE)
-        self.constant_dimension_value = self.reader_utils.get_string(self.CONSTANT_DIMENSION_KEY)
+        self.constant_dimension_name = self.reader_utils.get_string(self.CONSTANT_DIMENSION_NAME_KEY)
+        self.constant_dimension_value = self.reader_utils.get_string(self.CONSTANT_DIMENSION_VALUE_KEY)
         self.ec2_endpoint_url = self.reader_utils.get_string(self.EC2_ENDPOINT_URL)
         self.monitoring_endpoint_url = self.reader_utils.get_string(self.MONITORING_ENDPOINT_URL)
         self.presto_node_role = self.reader_utils.get_string(self.PRESTO_NODE_ROLE_KEY)

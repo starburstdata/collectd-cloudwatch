@@ -46,6 +46,7 @@ class ConfigHelper(object):
         self.pass_through = False
         self.push_asg = False
         self.push_constant = False
+        self.constant_dimension_name = ''
         self.constant_dimension_value = ''
         self.presto_node_role = ''
         self.presto_stack_name = ''
@@ -90,6 +91,7 @@ class ConfigHelper(object):
         self.pass_through = self.config_reader.pass_through
         self.push_asg = self.config_reader.push_asg
         self.push_constant = self.config_reader.push_constant
+        self.constant_dimension_name = self.config_reader.constant_dimension_name
         self.constant_dimension_value = self.config_reader.constant_dimension_value
         self.presto_node_role = self.config_reader.presto_node_role
         self.presto_stack_name = self.config_reader.presto_stack_name

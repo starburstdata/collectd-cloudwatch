@@ -130,12 +130,15 @@ class MetricDataBuilder(object):
         if self.config.push_asg:
             dimensions["AutoScalingGroup"] = self._get_autoscaling_group()
         if self.config.push_constant:
-            dimensions["FixedDimension"] = self.config.constant_dimension_value
+            dimensions[self._get_constant_dimension_name()] = self.config.constant_dimension_value
         if self.config.presto_node_role:
             dimensions["PrestoNodeRole"] = self.config.presto_node_role
         if self.config.presto_stack_name:
             dimensions["PrestoStackName"] = self.config.presto_stack_name
         return dimensions
+
+    def _get_constant_dimension_name(self):
+        return self.config.constant_dimension_name if self.config.constant_dimension_name else "FixedDimension"
 
     def _get_plugin_instance_dimension(self):
         if self.vl.plugin_instance:
