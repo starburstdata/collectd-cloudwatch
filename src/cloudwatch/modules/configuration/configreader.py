@@ -41,6 +41,8 @@ class ConfigReader(object):
     FLUSH_INTERVAL_IN_SECONDS = "flush_interval_in_seconds"
     EC2_ENDPOINT_URL = "ec2_endpoint_url"
     MONITORING_ENDPOINT_URL = "monitoring_endpoint_url"
+    PRESTO_NODE_ROLE_KEY = "presto_node_role"
+    PRESTO_STACK_NAME_KEY = "presto_stack_name"
 
     def __init__(self, config_path):
         self.config_path = config_path
@@ -52,6 +54,8 @@ class ConfigReader(object):
         self.push_asg = self._PUSH_ASG_DEFAULT_VALUE
         self.push_constant = self._PUSH_CONSTANT_DEFAULT_VALUE
         self.constant_dimension_value = ''
+        self.presto_node_role = ''
+        self.presto_stack_name = ''
         self.proxy_server_name=''
         self.proxy_server_port = ''
         self.enable_high_resolution_metrics = self._ENABLE_HIGH_DEFINITION_METRICS_DEFAULT_VALUE
@@ -82,3 +86,5 @@ class ConfigReader(object):
         self.constant_dimension_value = self.reader_utils.get_string(self.CONSTANT_DIMENSION_KEY)
         self.ec2_endpoint_url = self.reader_utils.get_string(self.EC2_ENDPOINT_URL)
         self.monitoring_endpoint_url = self.reader_utils.get_string(self.MONITORING_ENDPOINT_URL)
+        self.presto_node_role = self.reader_utils.get_string(self.PRESTO_NODE_ROLE_KEY)
+        self.presto_stack_name = self.reader_utils.get_string(self.PRESTO_STACK_NAME_KEY)

@@ -47,6 +47,8 @@ class ConfigHelper(object):
         self.push_asg = False
         self.push_constant = False
         self.constant_dimension_value = ''
+        self.presto_node_role = ''
+        self.presto_stack_name = ''
         self.enable_high_resolution_metrics = False
         self.flush_interval_in_seconds = ''
         self._load_configuration()
@@ -89,6 +91,8 @@ class ConfigHelper(object):
         self.push_asg = self.config_reader.push_asg
         self.push_constant = self.config_reader.push_constant
         self.constant_dimension_value = self.config_reader.constant_dimension_value
+        self.presto_node_role = self.config_reader.presto_node_role
+        self.presto_stack_name = self.config_reader.presto_stack_name
         self._check_configuration_integrity()
     
     def _get_credentials_path(self):
