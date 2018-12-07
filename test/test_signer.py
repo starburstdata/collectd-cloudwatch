@@ -30,7 +30,7 @@ class SignerTest(unittest.TestCase):
         payload = ""
         expected_request = method + "\n" + uri + "\n" + query_string + "\n" + canonical_headers + "\n" \
             + signed_headers + "\n" + self.signer._hash(payload)
-        generated_request = self.signer._build_canonical_request(query_string, canonical_headers, signed_headers, payload)
+        generated_request = self.signer._build_canonical_request(query_string, canonical_headers, signed_headers, payload, method="GET")
         self.assertEquals(expected_request, generated_request)
 
 # regression tests

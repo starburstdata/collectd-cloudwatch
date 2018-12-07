@@ -17,14 +17,14 @@ class RequestBuilder(BaseRequestBuilder):
         super(self.__class__, self).__init__(endpoint, credentials, region, self._SERVICE, self._ACTION, self._API_VERSION, enable_high_resolution_metrics)
         self.namespace = ""
 
-    def create_signed_request(self, namespace, metric_list):
+    def create_signed_request(self, namespace, metric_list, method="GET"):
         """ Creates a ready to send request with metrics from the metric list passed as parameter """
         self.namespace = namespace
         self._init_timestamps()
         canonical_querystring = self._create_canonical_querystring(metric_list)
         signature = self.signer.create_request_signature(canonical_querystring, self._get_credential_scope(),
                                             self.aws_timestamp, self.datestamp, self._get_canonical_headers(),
-                                            self._get_signed_headers(), self.payload)
+                                            self._get_signed_headers(), self.payload, method=method)
         canonical_querystring += '&X-Amz-Signature=' + signature
         return canonical_querystring
     

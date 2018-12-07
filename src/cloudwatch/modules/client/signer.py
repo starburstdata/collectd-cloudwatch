@@ -24,19 +24,19 @@ class Signer(object):
         self.service = service
         self.algorithm = algorithm
     
-    def create_request_signature(self, canonical_querystring, credential_scope, aws_timestamp, datestamp, canonical_headers, signed_headers, payload=""):
+    def create_request_signature(self, canonical_querystring, credential_scope, aws_timestamp, datestamp, canonical_headers, signed_headers, payload="", method=_METHOD):
         """ Creates a V4 request signature for the request """
-        canonical_request = self._build_canonical_request(canonical_querystring, canonical_headers, signed_headers, payload)
+        canonical_request = self._build_canonical_request(canonical_querystring, canonical_headers, signed_headers, payload, method)
         string_to_sign = self._build_string_to_sign(aws_timestamp, credential_scope, canonical_request)
         signing_key = self._build_signature_key(self.credentials.secret_key, datestamp, self.region, self.service)
         return self._build_signature(signing_key, string_to_sign)
     
-    def _build_canonical_request(self, canonical_querystring, canonical_headers, signed_headers, payload):
+    def _build_canonical_request(self, canonical_querystring, canonical_headers, signed_headers, payload, method):
         """ 
         Creates canonical request as descibed in the official documentation: 
         http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
         """
-        return self._METHOD + '\n' + self._CANONICAL_URI + '\n' + canonical_querystring + '\n' \
+        return method + '\n' + self._CANONICAL_URI + '\n' + canonical_querystring + '\n' \
                + canonical_headers + '\n' + signed_headers + '\n' + self._hash(payload)
     
     def _build_string_to_sign(self, aws_timestamp, credential_scope, canonical_request):
