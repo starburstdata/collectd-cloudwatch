@@ -79,6 +79,17 @@ class PutClientTest(unittest.TestCase):
         self.assertTrue("X-Amz-Credential" in received_request)
         self.assertTrue("X-Amz-Date" in received_request)
         self.assertTrue("X-Amz-SignedHeaders" in received_request)
+
+    def test_put_metric_data_split(self):
+        self.server.set_timeout_delay(PutClient._DEFAULT_RESPONSE_TIMEOUT * (PutClient._TOTAL_RETRIES + 1))
+        metric_name = "test_metric"
+        namespace = "testing_namespace"
+        metric = MetricDataStatistic(metric_name, statistic_values=MetricDataStatistic.Statistics(20), namespace=namespace)
+        start_number_of_requests = FakeServer.number_of_requests
+        self.client.put_metric_data(namespace, [metric] * (PutClient._MIN_NUMBER_OF_METRICS + 1))
+        end_number_of_requests = FakeServer.number_of_requests
+        # one retry for original query, two queries with partial metrics
+        self.assertEquals(start_number_of_requests + PutClient._TOTAL_RETRIES + 1 + 2, end_number_of_requests)
     
     def test_put_metric_data_with_iam_role_creds(self):
         metric_name = "test_metric"

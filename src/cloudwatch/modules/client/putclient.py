@@ -26,6 +26,7 @@ class PutClient(object):
     _DEFAULT_CONNECTION_TIMEOUT = 1
     _DEFAULT_RESPONSE_TIMEOUT = 3
     _TOTAL_RETRIES = 1
+    _MIN_NUMBER_OF_METRICS = 5
     _LOG_FILE_MAX_SIZE = 10*1024*1024
 
     def __init__(self, config_helper, connection_timeout=_DEFAULT_CONNECTION_TIMEOUT, response_timeout=_DEFAULT_RESPONSE_TIMEOUT):
@@ -78,8 +79,14 @@ class PutClient(object):
         try:
             self._run_request(request) 
         except Exception as e:
-            self._LOGGER.warning("Could not put metric data using the following endpoint: '" + self.endpoint +"'. [Exception: " + str(e) + "]")
-            self._LOGGER.warning("Request details: '" + request + "'")
+            if len(metric_list) <= self._MIN_NUMBER_OF_METRICS:
+                self._LOGGER.warning("Could not put metric data using the following endpoint: '" + self.endpoint +"'. [Exception: " + str(e) + "]")
+                self._LOGGER.warning("Request details: '" + request + "'")
+            else:
+                # try splitting request into smaller chunks
+                size = len(metric_list)
+                self.put_metric_data(namespace, metric_list[0:size / 2])
+                self.put_metric_data(namespace, metric_list[size / 2:size])
 
     def _is_namespace_consistent(self, namespace, metric_list):
         """

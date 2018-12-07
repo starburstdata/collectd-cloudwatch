@@ -19,6 +19,7 @@ class FakeServer(object):
     REQUEST_FILE = FILE_DIR + "fake-http-server-request.txt"
     WAIT_UNTIL_READY_DELAY = 0.1
     timeout_delay = 0
+    number_of_requests = 0
 
     def __init__(self, port=DEFAULT_PORT):
         self.port = port
@@ -47,6 +48,7 @@ class FakeServer(object):
         def do_POST(self):
             with self._lock:
                 self.log_message("POST: Command: %s Path: %s Headers: %s", self.command, self.path, self.headers.items())
+                FakeServer.number_of_requests += 1
                 with open(FakeServer.REQUEST_FILE, "w") as request_file:
                     request_file.write(json.dumps({"headers": self.headers, "body": self._get_request_body()}))
                 self.write_response()
@@ -54,6 +56,7 @@ class FakeServer(object):
         def do_GET(self):
             with self._lock:
                 self.log_message("GET: Command: %s Path: %s  Headers: %s", self.command, self.path, self.headers.items())
+                FakeServer.number_of_requests += 1
                 with open(FakeServer.REQUEST_FILE, "w") as request_file:
                     request_file.write(self.path + "\n" + str(self.headers))
                 self._execute_and_reset_delay()
