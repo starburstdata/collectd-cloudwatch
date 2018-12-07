@@ -74,7 +74,7 @@ class PutClient(object):
         credentials = self.config.credentials
         self.request_builder.credentials = credentials
         self.request_builder.signer.credentials = credentials
-        request = self.request_builder.create_signed_request(namespace, metric_list)
+        request = self.request_builder.create_signed_request(namespace, metric_list, method="POST")
         try:
             self._run_request(request) 
         except Exception as e:
@@ -93,7 +93,7 @@ class PutClient(object):
 
     def _run_request(self, request):
         """
-        Executes HTTP GET request with timeout using the endpoint defined upon client creation.
+        Executes HTTP POST request with timeout using the endpoint defined upon client creation.
         """
         if self.debug:
             file_path = gettempdir() + "/collectd_plugin_request_trace_log"
@@ -103,13 +103,15 @@ class PutClient(object):
                 logfile.write("curl -i -v -connect-timeout 1 -m 3 -w %{http_code}:%{http_connect}:%{content_type}:%{time_namelookup}:%{time_redirect}:%{time_pretransfer}:%{time_connect}:%{time_starttransfer}:%{time_total}:%{speed_download} -A \"collectd/1.0\" \'" + self.endpoint + "?" + request + "\'")
                 logfile.write("\n\n")
 
-        result = self.session.get(self.endpoint + "?" + request, headers=self._get_custom_headers(), timeout=self.timeout)
+        result = self.session.post(self.endpoint, data=request, headers=self._get_custom_headers(), timeout=self.timeout)
         result.raise_for_status()
         return result
     
     def _get_custom_headers(self):
         """ Returns dictionary of HTTP headers to be attached to each request """
-        return {"User-Agent": self._get_user_agent_header()}
+        return {
+            "User-Agent": self._get_user_agent_header(),
+            "Content-Type": "application/x-www-form-urlencoded"}
 
     def _get_user_agent_header(self):
         """ Returns the plugin name and version used as User-Agent information """

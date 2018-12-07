@@ -50,16 +50,16 @@ class PutClientTest(unittest.TestCase):
             self.client = PutClient(self.config_helper)
         self.assertTrue(self.logger.error.called)
     
-    def test_get_request(self):
+    def test_post_request(self):
         request = "Testing_Request"
         result = self.client._run_request("Testing_Request")
         self.assertEquals("OK", result.text)
         self.assertEquals(200, result.status_code)
-        self.assertTrue(request in self.server_get_received_request())   
+        self.assertTrue(request in self.server_post_received_request())
         
-    def test_get_request_timeout(self):
+    def test_post_request_timeout(self):
         self.server.set_timeout_delay(PutClient._DEFAULT_RESPONSE_TIMEOUT * (PutClient._TOTAL_RETRIES + 1))
-        with self.assertRaises(requests.ConnectionError):
+        with self.assertRaises(requests.ReadTimeout):
             self.client._run_request("request")
         self.server_restart()
         
@@ -68,7 +68,7 @@ class PutClientTest(unittest.TestCase):
         namespace = "testing_namespace"
         metric = MetricDataStatistic(metric_name, statistic_values=MetricDataStatistic.Statistics(20), namespace=namespace)
         self.client.put_metric_data(namespace, [metric])
-        received_request = self.server_get_received_request()
+        received_request = self.server_post_received_request()
         self.assertTrue("MetricData.member.1.MetricName=" + metric_name in received_request)
         self.assertTrue("MetricData.member.1.Timestamp=" + metric.timestamp in received_request)
         self.assertTrue("MetricData.member.1.StatisticValues." in received_request)
@@ -87,7 +87,7 @@ class PutClientTest(unittest.TestCase):
         self.config_helper.credentials = AWSCredentials("access", "secret", "IAM_ROLE_TOKEN")
         self.client = PutClient(self.config_helper)
         self.client.put_metric_data(namespace, [metric])
-        received_request = self.server_get_received_request()
+        received_request = self.server_post_received_request()
         self.assertTrue("X-Amz-Security-Token=IAM_ROLE_TOKEN" in received_request)
     
     def test_put_metric_data_with_retry(self):
@@ -95,7 +95,7 @@ class PutClientTest(unittest.TestCase):
         metric_name = "test_metric"
         metric = MetricDataStatistic(metric_name, statistic_values=MetricDataStatistic.Statistics(20))
         self.client.put_metric_data(MetricDataStatistic.NAMESPACE, [metric])
-        received_request = self.server_get_received_request()
+        received_request = self.server_post_received_request()
         self.assertTrue("MetricData.member.1.MetricName=" + metric_name in received_request)
         
     def test_put_metric_data_with_timeout(self):
@@ -119,11 +119,12 @@ class PutClientTest(unittest.TestCase):
         headers = self.client._get_custom_headers()
         self.assertTrue(headers['User-Agent'])
         self.assertTrue(PutClientTest.USER_AGENT in headers['User-Agent'])
-    
+        self.assertEquals(headers['Content-Type'], "application/x-www-form-urlencoded")
+
     def test_server_received_user_agent_information(self):
         metric = MetricDataStatistic(metric_name="test_metric", statistic_values=MetricDataStatistic.Statistics(20), namespace="testing_namespace")
         self.client.put_metric_data("testing_namespace", [metric])
-        received_request = self.server_get_received_request()
+        received_request = self.server_post_received_request()
         self.assertTrue(PutClientTest.USER_AGENT in received_request)
         
     def test_client_raise_exception_on_credentials_error(self):    
@@ -145,12 +146,12 @@ class PutClientTest(unittest.TestCase):
     def test_credentials_are_updated_in_the_put_client(self):
         metric = MetricDataStatistic(metric_name="test_metric", statistic_values=MetricDataStatistic.Statistics(20), namespace="testing_namespace")
         self.client.put_metric_data("testing_namespace", [metric])
-        received_request = self.server_get_received_request()
+        received_request = self.server_post_received_request()
         self.assertTrue("access" in received_request)
         self.config_helper.credentials = AWSCredentials("NEW_ACCESS_KEY", "NEW_SECRET_KEY")
         self.client = PutClient(self.config_helper)
         self.client.put_metric_data("testing_namespace", [metric])
-        received_request = self.server_get_received_request()
+        received_request = self.server_post_received_request()
         self.assertTrue("NEW_ACCESS_KEY" in received_request)
         
     def assert_no_retry_on_error_request(self, namespace, metric_list):
@@ -167,8 +168,8 @@ class PutClientTest(unittest.TestCase):
         self.server.set_expected_response("OK", 200)
         self.server.serve_forever()
 
-    def server_get_received_request(self):
-        return open(FakeServer.REQUEST_FILE).read()[2:] # trim '/?' from the request 
+    def server_post_received_request(self):
+        return open(FakeServer.REQUEST_FILE).read()
         
     @classmethod
     def tearDownClass(cls):    

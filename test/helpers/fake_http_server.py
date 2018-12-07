@@ -1,5 +1,4 @@
 import BaseHTTPServer
-import json
 import os.path
 import socket
 import threading
@@ -48,7 +47,8 @@ class FakeServer(object):
             with self._lock:
                 self.log_message("POST: Command: %s Path: %s Headers: %s", self.command, self.path, self.headers.items())
                 with open(FakeServer.REQUEST_FILE, "w") as request_file:
-                    request_file.write(json.dumps({"headers": self.headers, "body": self._get_request_body()}))
+                    request_file.write(self.path + "\n" + self._get_request_body() + "\n" + str(self.headers))
+                self._execute_and_reset_delay()
                 self.write_response()
         
         def do_GET(self):
@@ -86,9 +86,10 @@ class FakeServer(object):
             return ""
 
         def _execute_and_reset_delay(self):
-            if FakeServer.timeout_delay > 0:
-                time.sleep(FakeServer.timeout_delay)
-                FakeServer.timeout_delay = 0
+            timeout_delay = FakeServer.timeout_delay
+            FakeServer.timeout_delay = 0
+            if timeout_delay > 0:
+                time.sleep(timeout_delay)
 
     def start_server(self):
         if not self._server_started:
